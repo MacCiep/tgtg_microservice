@@ -76,8 +76,11 @@ class User(db.Model):
         return cls.query.all()
 
     @classmethod
+    def get_by_main_service_id(cls, id):
+        return cls.query.filter_by(main_service_id=id).first_or_404()
+
+    @classmethod
     def get_by_id(cls, id):
-        # with app.app_context():
         return cls.query.get_or_404(id)
 
     def save(self):
@@ -85,6 +88,9 @@ class User(db.Model):
         # with app.app_context():
         db.session.add(self)
         db.session.commit()
+
+    def authorized(self):
+        return bool(self.token and self.refresh_token and self.tgtg_cookie and self.tgtg_id)
 
     def user_client(self):
         return TgtgSelf(
